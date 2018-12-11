@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "846220585023",
+    "firebase_url": "https://minnanoquiz.firebaseio.com",
+    "project_id": "minnanoquiz",
+    "storage_bucket": "minnanoquiz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846220585023:android:5540cd62be2c00a2",
+        "android_client_info": {
+          "package_name": "lee.minnanoquiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846220585023-814g8rak6kv9tkbv6cb5oe6e1lq44kdr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lee.minnanoquiz",
+            "certificate_hash": "253959f1fd7ad0d5c57715dc2c42608106328e9b"
+          }
+        },
+        {
+          "client_id": "846220585023-velds897o01ccg223u488vrv0d70ie87.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP26Vk_FasxhKA8rcTe7Fi7wYnf9Xb6J8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "846220585023-velds897o01ccg223u488vrv0d70ie87.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
