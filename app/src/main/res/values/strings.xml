@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MinnanoQuiz</string>
+    <string name="txtNameQue">あなたの名前を入力してください。</string>
+    <string name="inputNameInput">サインイン</string>
 </resources>

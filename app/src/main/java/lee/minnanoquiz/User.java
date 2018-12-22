@@ -1,5 +1,8 @@
 package lee.minnanoquiz;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class User {
     private String UserId;
     private String UserName;
@@ -35,5 +38,15 @@ public class User {
     public User(String userId, String userName) {
         UserId = userId;
         UserName = userName;
+        regDateYMD = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "UserId='" + UserId + '\'' +
+                ", UserName='" + UserName + '\'' +
+                ", regDateYMD='" + regDateYMD + '\'' +
+                '}';
     }
 }
