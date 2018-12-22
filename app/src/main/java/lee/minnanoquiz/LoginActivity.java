@@ -5,6 +5,11 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,46 +19,64 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
     private String uid;
-    private boolean uidCheck;
     private User user;
+    private boolean uidCheck;
+    private Button btnNameInput;
+    private EditText editNameInput;
+    private TextView txtNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        btnNameInput = findViewById(R.id.btnNameInput);
+        editNameInput = findViewById(R.id.editNameInput);
+        txtNotification = findViewById(R.id.txtNotification);
 
         uid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-             System.err.print("test");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
         this.isUser();
 
         if(!uidCheck){
             this.createUid();
         }else if(!user.getUserName().isEmpty()){
-            Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-            intent.putExtra("user",user.getUserName());
-            startActivity(intent);
+           this.goMain();
         }
+
+        btnNameInput.setOnClickListener(this);
+    }
+
+    private void goMain(){
+        Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+        intent.putExtra("user",user.getUserName());
+        startActivity(intent);
     }
 
     private void createUid(){
         DatabaseReference targetUserRef = userRef.child(uid);
         targetUserRef.setValue(new User(uid,""));
     }
+
+    //implement the onClick method here
+    public void onClick(View v) {
+        // Perform action on click
+        switch (v.getId()) {
+            case R.id.btnNameInput:
+                if (editNameInput.getText().toString().length() == 0) {
+                    txtNotification.setText("名前欄に入力されてないです。");
+                    return;
+                }
+                    DatabaseReference targetUserRef = userRef.child(uid);
+                    user.setUserName(editNameInput.getText().toString());
+                    targetUserRef.setValue(user);
+                    this.goMain();
+                    break;
+                }
+        }
 
     private void isUser(){
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -65,12 +88,11 @@ public class LoginActivity extends AppCompatActivity {
                 while(child.hasNext())
                 {
                     String targetId = child.next().getKey();
-                    System.err.println(targetId);
                     if(targetId.equals(uid))
                     {
                         uidCheck = true;
                         DatabaseReference targetUserRef = userRef.child(uid);
-;                       targetUserRef.addValueEventListener(new ValueEventListener() {
+                       targetUserRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             user = dataSnapshot.getValue(User.class);
