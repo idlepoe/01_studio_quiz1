@@ -5,6 +5,8 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -17,11 +19,14 @@ import org.w3c.dom.Text;
 
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     String uid;
     User user;
     TextView txtUserName;
+
+    Button btnAddQuestion;
+
     private DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
 
     @Override
@@ -35,10 +40,29 @@ public class MainActivity extends AppCompatActivity {
 
         String name = intent.getExtras().getString("user");
 
+        user = new User();
+        user.setUserName(name);
+
         txtUserName = findViewById(R.id.txtUserName);
         txtUserName.setText(name);
+
+        btnAddQuestion = findViewById(R.id.btnAddQuestion);
+
+        btnAddQuestion.setOnClickListener(this);
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnAddQuestion:
+                Intent intent=new Intent(MainActivity.this,AddQuestionActivity.class);
+                intent.putExtra("user",this.user.getUserName());
+                startActivity(intent);
+                break;
 
+
+        }
+
+    }
 }

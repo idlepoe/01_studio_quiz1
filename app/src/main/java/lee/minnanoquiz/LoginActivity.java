@@ -41,7 +41,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         this.isUser();
 
+    System.out.println("isUser = " + uidCheck);
+
         if(!uidCheck){
+            System.out.println("createUid");
             this.createUid();
         }else if(!user.getUserName().isEmpty()){
            this.goMain();
@@ -88,8 +91,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 while(child.hasNext())
                 {
                     String targetId = child.next().getKey();
+                    System.out.println(targetId + " = " + uid);
                     if(targetId.equals(uid))
                     {
+                        System.out.println("douichiIdgaaruyo");
                         uidCheck = true;
                         DatabaseReference targetUserRef = userRef.child(uid);
                        targetUserRef.addValueEventListener(new ValueEventListener() {
