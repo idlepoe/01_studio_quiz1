@@ -41,27 +41,31 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         this.isUser();
 
-    System.out.println("isUser = " + uidCheck);
+        System.err.println("------------------isUser = " + uidCheck);
 
-        if(!uidCheck){
+        if (!uidCheck) {
             System.out.println("createUid");
             this.createUid();
-        }else if(!user.getUserName().isEmpty()){
-           this.goMain();
         }
+//
+        System.out.println("------------------------------------------");
+        System.out.println(user);
+//        if(!user.getUserName().isEmpty()){
+//           this.goMain();
+//        }
 
         btnNameInput.setOnClickListener(this);
     }
 
-    private void goMain(){
-        Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-        intent.putExtra("user",user.getUserName());
+    private void goMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("user", user.getUserName());
         startActivity(intent);
     }
 
-    private void createUid(){
+    private void createUid() {
         DatabaseReference targetUserRef = userRef.child(uid);
-        targetUserRef.setValue(new User(uid,""));
+        targetUserRef.setValue(new User(uid, ""));
     }
 
     //implement the onClick method here
@@ -73,45 +77,49 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     txtNotification.setText("名前欄に入力されてないです。");
                     return;
                 }
-                    DatabaseReference targetUserRef = userRef.child(uid);
-                    user.setUserName(editNameInput.getText().toString());
-                    targetUserRef.setValue(user);
-                    this.goMain();
-                    break;
-                }
+                //DatabaseReference targetUserRef = userRef.child(uid);
+                //user.setUserName(editNameInput.getText().toString());
+                //targetUserRef.setValue(user);
+                this.goMain();
+                break;
         }
+    }
 
-    private void isUser(){
+    private void isUser() {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 Iterator<DataSnapshot> child = dataSnapshot.getChildren().iterator();
 
-                while(child.hasNext())
-                {
+                while (child.hasNext()) {
                     String targetId = child.next().getKey();
                     System.out.println(targetId + " = " + uid);
-                    if(targetId.equals(uid))
-                    {
+                    if (targetId.equals(uid)) {
                         System.out.println("douichiIdgaaruyo");
                         uidCheck = true;
                         DatabaseReference targetUserRef = userRef.child(uid);
-                       targetUserRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            user = dataSnapshot.getValue(User.class);
-                        }
+                        targetUserRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                user = dataSnapshot.getValue(User.class);
+                                System.err.println(user);
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.putExtra("user", user.getUserName());
+                                startActivity(intent);
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
                         return;
                     }
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 

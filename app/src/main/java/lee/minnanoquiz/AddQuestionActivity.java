@@ -69,38 +69,38 @@ public class AddQuestionActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btnAddQuestion:
-                if(editWord.getText().toString().length()==0){
-                    txtNotification2.setText(txtNotification2.getText().toString().length()>0?txtNotification2.getText().toString()+"単語を入力して下さい。":"単語を入力して下さい。");
+                if (editWord.getText().toString().length() == 0) {
+                    txtNotification2.setText(txtNotification2.getText().toString().length() > 0 ? txtNotification2.getText().toString() + "単語を入力して下さい。" : "単語を入力して下さい。");
                 }
-                if(editPronounce.getText().toString().length()==0){
-                    txtNotification2.setText(txtNotification2.getText().toString().length()>0?txtNotification2.getText().toString()+"¥n読み方を入力して下さい。":"読み方を入力して下さい。");
+                if (editPronounce.getText().toString().length() == 0) {
+                    txtNotification2.setText(txtNotification2.getText().toString().length() > 0 ? txtNotification2.getText().toString() + "¥n読み方を入力して下さい。" : "読み方を入力して下さい。");
                 }
-                if(editMeaning.getText().toString().length()==0){
-                    txtNotification2.setText(txtNotification2.getText().toString().length()>0?txtNotification2.getText().toString()+"¥n意味を入力して下さい。":"意味を入力して下さい。");
+                if (editMeaning.getText().toString().length() == 0) {
+                    txtNotification2.setText(txtNotification2.getText().toString().length() > 0 ? txtNotification2.getText().toString() + "¥n意味を入力して下さい。" : "意味を入力して下さい。");
                 }
                 InsertQuiz();
-            break;
+                break;
             case R.id.btnBack:
                 super.onBackPressed();
                 break;
         }
     }
 
-    void InsertQuiz(){
+    void InsertQuiz() {
         isQuiz = false;
         //DatabaseReference targetWordRef = wordRef;
-        wordRef.addListenerForSingleValueEvent(new ValueEventListener(){
+        wordRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
                                                    @Override
                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                        Iterator<DataSnapshot> child = dataSnapshot.getChildren().iterator();
 
-                                                       while(child.hasNext()) {
+                                                       while (child.hasNext()) {
                                                            String word = child.next().getKey();
                                                            System.out.println(word + " = " + editWord.getText().toString());
-                                                           if(word.equals(editWord.getText().toString())) {
+                                                           if (word.equals(editWord.getText().toString())) {
                                                                isQuiz = true;
                                                            }
                                                        }
@@ -112,19 +112,16 @@ public class AddQuestionActivity extends AppCompatActivity implements View.OnCli
                                                    }
                                                }
         );
-        if(!isQuiz){
-            wordRef.setValue(editWord.getText().toString());
+        if (!isQuiz) {
+            //wordRef.setValue(editWord.getText().toString());
 
             String key = wordRef.child(editWord.getText().toString()).push().getKey();
             Map<String, Object> childUpdates = new HashMap<>();
 
-            childUpdates.put(editWord.getText().toString(), new Words(editWord.getText().toString(),editPronounce.getText().toString(),editMeaning.getText().toString(),editComment.getText().toString()
-                    ,uid,user.getUserName(),"20180901",0,0));
-
+            childUpdates.put(editWord.getText().toString(), new Words(editWord.getText().toString(), editPronounce.getText().toString(), editMeaning.getText().toString(), editComment.getText().toString()
+                    , uid, user.getUserName(), "20180901", 0, 0));
+            //databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat);
             wordRef.updateChildren(childUpdates);
-
-
-
 
 
         }
