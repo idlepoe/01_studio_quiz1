@@ -7,6 +7,7 @@ public class User {
     private String UserId;
     private String UserName;
     private String regDateYMD;
+    private Integer point;
 
     public String getUserId() {
         return UserId;
@@ -35,6 +36,16 @@ public class User {
     public User() {
     }
 
+
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
     public User(String userId, String userName) {
         UserId = userId;
         UserName = userName;
@@ -47,6 +58,7 @@ public class User {
                 "UserId='" + UserId + '\'' +
                 ", UserName='" + UserName + '\'' +
                 ", regDateYMD='" + regDateYMD + '\'' +
+                ", point=" + point +
                 '}';
     }
 }

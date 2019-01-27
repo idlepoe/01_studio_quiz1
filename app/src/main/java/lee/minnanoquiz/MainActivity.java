@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     Button btnAddQuestion;
     Button btnQuizList;
+    Button btnQuiz;
 
     private DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
 
@@ -49,8 +50,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btnAddQuestion = findViewById(R.id.btnAddQuestion);
         btnQuizList = findViewById(R.id.btnQuizList);
+        btnQuiz = findViewById(R.id.btnQuiz);
+
         btnAddQuestion.setOnClickListener(this);
         btnQuizList.setOnClickListener(this);
+        btnQuiz.setOnClickListener(this);
     }
 
 
@@ -66,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent1=new Intent(MainActivity.this,QuizListActivity.class);
                 intent1.putExtra("user",this.user.getUserName());
                 startActivity(intent1);
+                break;
+            case R.id.btnQuiz:
+                Intent intent2=new Intent(MainActivity.this,QuizActivity.class);
+                intent2.putExtra("user",this.user.getUserName());
+                startActivity(intent2);
                 break;
 
 

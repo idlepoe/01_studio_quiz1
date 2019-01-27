@@ -18,8 +18,11 @@
 
             <ListView
                 android:id="@+id/quiz_view"
-                android:layout_width="match_parent"
-                android:layout_height="667dp" />
+                android:layout_width="443dp"
+                android:layout_height="667dp" >
+
+            </ListView>
+
         </LinearLayout>
 
         <LinearLayout
