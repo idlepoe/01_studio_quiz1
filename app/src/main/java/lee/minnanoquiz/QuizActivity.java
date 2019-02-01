@@ -2,11 +2,12 @@ package lee.minnanoquiz;
 
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -15,13 +16,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.otto.ThreadEnforcer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
@@ -29,14 +28,21 @@ import java.util.TimerTask;
 
 public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
     private DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private DatabaseReference targetUserRef;
+    private DatabaseReference targetUserPointRef;
     private DatabaseReference wordRef = FirebaseDatabase.getInstance().getReference().child("words");
 
     private String uid;
-    private User user;
+    User user;
+
     Timer timer;
     TextView txtTimer;
     TextView txtQuiz;
     ProgressBar progressTimer;
+
+    TextView txtUserName;
+    ProgressBar prgScore;
+    TextView txtPoint;
 
     public List<Words> wordsList;
 
@@ -54,7 +60,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     Button btnAnswer2;
     Button btnAnswer3;
 
-    Integer cnt;
+
+    Integer score;
+
+    ImageView imgMaru;
+    ImageView imgBachi;
+
+    boolean result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,38 +74,67 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_quiz);
 
         uid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        targetUserRef = userRef.child(uid);
+        targetUserPointRef = targetUserRef.child("point");
 
+        user = new User();
         wordsList = new ArrayList<Words>();
 
-        btnBack = findViewById(R.id.btnBack);
-        progressTimer = findViewById(R.id.progressTimer);
+        // ヘッダーID
+        txtUserName = findViewById(R.id.txtUserName);
+        prgScore = findViewById(R.id.prgScore);
+        txtPoint = findViewById(R.id.txtPoint);
+
+        // クイズID
         txtQuiz = findViewById(R.id.txtQuiz);
 
+        progressTimer = findViewById(R.id.progressTimer);
 
+        // タイマーID
+        txtTimer = findViewById(R.id.txtTimer);
+
+        // 正当、バツのイメージID
+        imgMaru = findViewById(R.id.imgMaru);
+        imgBachi = findViewById(R.id.imgBachi);
+
+        // 正当ボタン１，２，３
         btnAnswer1 = findViewById(R.id.btnAnswer1);
         btnAnswer2 = findViewById(R.id.btnAnswer2);
         btnAnswer3 = findViewById(R.id.btnAnswer3);
 
+        // 戻るボタン
+        btnBack = findViewById(R.id.btnBack);
+
+        txtUserName.setText(uid);
+
+
+        prgScore.setMax(100);
+
+        // クイズの制限
         progressTimer.setMax(10);
+
+        //戻るボタンのリスナー
         btnBack.setOnClickListener(this);
 
+        // 正当ボタンのリスナー
         btnAnswer1.setOnClickListener(this);
         btnAnswer2.setOnClickListener(this);
         btnAnswer3.setOnClickListener(this);
 
-        txtTimer = findViewById(R.id.txtTimer);
+
         bus = new Bus(ThreadEnforcer.MAIN);
         bus.register(this);
-cnt =0;
+
+        score = 0;
+        getUserInfo();
         getQuizList();
 
-
-        this.time();
+        this.repeatQuiz();
     }
 
-    void time() {
+    void repeatQuiz() {
 
-        countdownValue = getCountdownTime();
+        countdownValue = 10;
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -103,24 +144,20 @@ cnt =0;
                     @Override
                     public void run() {
                         progressTimer.setProgress(countdownValue);
-                        if(cnt==1){
-                            DatabaseReference targetUserRef = userRef.child(uid);
-                            if(user!=null) {
-                                user.setPoint((user.getPoint() == null ? 0 : user.getPoint()) + 1);
-                                targetUserRef.setValue(user);
-                            }
-                            cnt=0;
+
+                        if (countdownValue <= 9) {
+                            imgMaru.setVisibility(View.INVISIBLE);
+                            imgBachi.setVisibility(View.INVISIBLE);
                         }
 
                         if ((txtQuiz.getText() + "").equalsIgnoreCase("textView") && wordsList.size() > 0) {
-                            quizStart();
+                            makeQuiz();
                         }
 
                         txtTimer.setText("" + countdownValue);
                         countdownValue--;
                         if (countdownValue <= 0) {
-
-                            quizStart();
+                            makeQuiz();
                         }
                     }
                 });
@@ -128,105 +165,87 @@ cnt =0;
         }, 0, 1000);
     }
 
-    void quizStart() {
-        cnt=0;
-        countdownValue = getCountdownTime();
+    void makeQuiz() {
+        countdownValue = 10;
         Random rand = new Random();
 
-        correctIndex = rand.nextInt((wordsList.size()));
-        Integer incorrectIndex1 = rand.nextInt((wordsList.size() - correctIndex));
-        Integer incorrectIndex2 = rand.nextInt((wordsList.size() - correctIndex));
+        correctIndex = rand.nextInt(wordsList.size()) + 0;
+
+        Integer incorrectIndex1 = rand.nextInt(wordsList.size()-1 - 0 + 1) + 0;
+        Integer incorrectIndex2 = rand.nextInt((wordsList.size()-1 - 0 + 1)) + 0;
+
+        while (incorrectIndex1 == correctIndex) {
+            incorrectIndex1 = rand.nextInt((wordsList.size()-1 - 0 + 1)) + 0;
+        }
+
+        while (incorrectIndex2 == correctIndex || incorrectIndex2 == incorrectIndex1) {
+            incorrectIndex2 = rand.nextInt((wordsList.size()-1 - 0 + 1)) + 0;
+        }
 
         txtQuiz.setText(wordsList.get(correctIndex).getWord());
-
-        answerCorrectIdx = rand.nextInt(4);
+        answerCorrectIdx = rand.nextInt(3 - 1 + 1) + 1;
 
         switch (answerCorrectIdx) {
             case 1:
                 btnAnswer1.setText(wordsList.get(correctIndex).getMeaning());
-
                 btnAnswer2.setText(wordsList.get(incorrectIndex1).getMeaning());
                 btnAnswer3.setText(wordsList.get(incorrectIndex2).getMeaning());
                 break;
             case 2:
                 btnAnswer2.setText(wordsList.get(correctIndex).getMeaning());
-
                 btnAnswer1.setText(wordsList.get(incorrectIndex1).getMeaning());
                 btnAnswer3.setText(wordsList.get(incorrectIndex2).getMeaning());
                 break;
             case 3:
                 btnAnswer3.setText(wordsList.get(correctIndex).getMeaning());
-
                 btnAnswer2.setText(wordsList.get(incorrectIndex1).getMeaning());
                 btnAnswer1.setText(wordsList.get(incorrectIndex2).getMeaning());
                 break;
-            default:
-                // ??
         }
     }
 
-    int getCountdownTime() {
-
-        int result = 10;
-
-        return result;
-    }
-
-    private void userPointUp() {
-
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void getUserInfo() {
+        targetUserRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                //user = dataSnapshot.getValue(User.class);
+                switch (dataSnapshot.getKey()){
+                    case "point":
+                        txtPoint.setText(dataSnapshot.getValue()+"");
+                        prgScore.setProgress(Integer.parseInt(dataSnapshot.getValue()+""));
+                        break;
+                }
 
-                Iterator<DataSnapshot> child = dataSnapshot.getChildren().iterator();
+            }
 
-                while (child.hasNext()) {
-                    String targetId = child.next().getKey();
-                    System.out.println(targetId + " = " + uid);
-                    if (targetId.equals(uid)) {
-
-                        DatabaseReference targetUserRef = userRef.child(uid);
-
-
-                        targetUserRef.addValueEventListener(new ValueEventListener() {
-
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-
-                                user = dataSnapshot.getValue(User.class);
-                                pointup(user);
-
-
-
-
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-                        return;
-                    }
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                switch (dataSnapshot.getKey()){
+                    case "point":
+                        txtPoint.setText(dataSnapshot.getValue()+"");
+                        prgScore.setProgress(Integer.parseInt(dataSnapshot.getValue()+""));
+                        break;
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-
-    }
-
-    void pointup(User user1){
-        user = user1;
-        cnt=1;
     }
 
     public void getQuizList() {
-
         wordRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -236,7 +255,6 @@ cnt =0;
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
@@ -245,14 +263,16 @@ cnt =0;
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
+    }
+
+    void setPoint(){
+        targetUserPointRef.setValue(Integer.parseInt(txtPoint.getText()+"")+1);
     }
 
     @Override
@@ -262,25 +282,31 @@ cnt =0;
                 super.onBackPressed();
                 break;
             case R.id.btnAnswer1:
-                if(wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer1.getText()+"")){
-                    userPointUp();
+                if (wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer1.getText() + "")) {
+                    result = true;
+                    setPoint();
                 }
-                quizStart();
-                break;
             case R.id.btnAnswer2:
-                if(wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer2.getText()+"")){
-                    userPointUp();
+                if (wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer2.getText() + "")) {
+                    result = true;
+                    setPoint();
                 }
-                quizStart();
-                break;
             case R.id.btnAnswer3:
-                if(wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer3.getText()+"")){
-                    userPointUp();
+                if (wordsList.get(correctIndex).getMeaning().equalsIgnoreCase(btnAnswer3.getText() + "")) {
+                    result = true;
+                    setPoint();
                 }
-                quizStart();
-                break;
-        }
 
+                if (result) {
+                    imgMaru.setVisibility(View.VISIBLE);
+                    score = score + 1;
+                    prgScore.setProgress(score);
+                } else {
+                    result = false;
+                    imgBachi.setVisibility(View.VISIBLE);
+                }
+                makeQuiz();
+        }
     }
 
     @Subscribe

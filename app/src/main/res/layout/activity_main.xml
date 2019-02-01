@@ -25,25 +25,25 @@
         app:layout_constraintVertical_bias="0.0">
 
         <TextView
-            android:id="@+id/txtLevel"
+            android:id="@+id/txtUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@txtLevel" />
+            android:text="TextView" />
 
         <ProgressBar
-            android:id="@+id/prgbExp"
+            android:id="@+id/prgScore"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/txtUserName"
+            android:id="@+id/txtPoint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
+            android:text="@txtLevel" />
 
     </LinearLayout>
 

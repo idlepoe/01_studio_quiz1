@@ -50,6 +50,7 @@ public class User {
         UserId = userId;
         UserName = userName;
         regDateYMD = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+        point = 0;
     }
 
     @Override

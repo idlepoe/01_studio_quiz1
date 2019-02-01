@@ -3,12 +3,15 @@ package lee.minnanoquiz;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,13 +26,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     String uid;
     User user;
+
     TextView txtUserName;
+    ProgressBar prgScore;
+    TextView txtPoint;
 
     Button btnAddQuestion;
     Button btnQuizList;
     Button btnQuiz;
 
-    private DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
+    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
+    DatabaseReference targetUserRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,24 +44,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         uid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        Intent intent = getIntent();
-
-        String name = intent.getExtras().getString("user");
+        targetUserRef = userRef.child(uid);
 
         user = new User();
-        user.setUserName(name);
-
         txtUserName = findViewById(R.id.txtUserName);
-        txtUserName.setText(name);
+        txtUserName.setText(uid);
+
+        // ヘッダーID
+        txtUserName = findViewById(R.id.txtUserName);
+        prgScore = findViewById(R.id.prgScore);
+        txtPoint = findViewById(R.id.txtPoint);
 
         btnAddQuestion = findViewById(R.id.btnAddQuestion);
         btnQuizList = findViewById(R.id.btnQuizList);
         btnQuiz = findViewById(R.id.btnQuiz);
 
+        prgScore.setMax(100);
+        getUserInfo();
+
         btnAddQuestion.setOnClickListener(this);
         btnQuizList.setOnClickListener(this);
         btnQuiz.setOnClickListener(this);
+    }
+
+    public void getUserInfo() {
+        targetUserRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                //user = dataSnapshot.getValue(User.class);
+                switch (dataSnapshot.getKey()){
+                    case "point":
+                        txtPoint.setText(dataSnapshot.getValue()+"");
+                        prgScore.setProgress(Integer.parseInt(dataSnapshot.getValue()+""));
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                switch (dataSnapshot.getKey()){
+                    case "point":
+                        txtPoint.setText(dataSnapshot.getValue()+"");
+                        prgScore.setProgress(Integer.parseInt(dataSnapshot.getValue()+""));
+                        break;
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

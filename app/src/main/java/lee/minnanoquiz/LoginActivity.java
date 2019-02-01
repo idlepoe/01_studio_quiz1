@@ -16,6 +16,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+import com.squareup.otto.ThreadEnforcer;
 
 import java.util.Iterator;
 
@@ -39,20 +42,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         uid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
+
         this.isUser();
-
-        System.err.println("------------------isUser = " + uidCheck);
-
-        if (!uidCheck) {
-            System.out.println("createUid");
-            this.createUid();
-        }
-//
-        System.out.println("------------------------------------------");
-        System.out.println(user);
-//        if(!user.getUserName().isEmpty()){
-//           this.goMain();
-//        }
 
         btnNameInput.setOnClickListener(this);
     }
@@ -64,8 +55,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void createUid() {
-        DatabaseReference targetUserRef = userRef.child(uid);
-        targetUserRef.setValue(new User(uid, ""));
+
     }
 
     //implement the onClick method here
@@ -94,30 +84,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 while (child.hasNext()) {
                     String targetId = child.next().getKey();
-                    System.out.println(targetId + " = " + uid);
                     if (targetId.equals(uid)) {
                         System.out.println("douichiIdgaaruyo");
                         uidCheck = true;
-                        DatabaseReference targetUserRef = userRef.child(uid);
-                        targetUserRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                user = dataSnapshot.getValue(User.class);
-                                System.err.println(user);
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.putExtra("user", user.getUserName());
-                                startActivity(intent);
-
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-                        return;
-                    }
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                      }
                 }
+                    if(!uidCheck) {
+                        DatabaseReference targetUserRef = userRef.child(uid);
+                        targetUserRef.setValue(new User(uid, ""));
+                    }
             }
 
             @Override
@@ -127,4 +104,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
 
     }
+
+
 }
