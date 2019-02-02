@@ -11,19 +11,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="678dp"
-            android:orientation="horizontal">
-
-            <ListView
-                android:id="@+id/quiz_view"
-                android:layout_width="443dp"
-                android:layout_height="667dp" >
-
-            </ListView>
-
-        </LinearLayout>
+        <ListView
+            android:id="@+id/quiz_view"
+            android:layout_width="443dp"
+            android:layout_height="667dp" />
 
         <LinearLayout
             android:layout_width="match_parent"

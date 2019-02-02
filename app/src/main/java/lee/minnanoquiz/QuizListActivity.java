@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,6 +32,12 @@ public class QuizListActivity extends AppCompatActivity implements View.OnClickL
         btnBack.setOnClickListener(this);
 
         getQuizList();
+
+        quiz_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                // Your code for item clicks
+            }
+        });
     }
 
 
